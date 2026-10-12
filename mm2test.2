@@ -1,0 +1,398 @@
+-- [[ ULTRA-PREMIUM NEON GUI ДЛЯ DELTA EXECUTOR (FULL GAMEPLAY WORK 2026) ]] --
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local LocalPlayer = Players.LocalPlayer
+
+local HitboxEnabled = false
+local HitboxSize = 15
+local HitboxTransparency = 0.6
+local EspEnabled = false
+
+local SafeParent = (typeof(gethui) == "function" and gethui()) or game:GetService("CoreGui") or LocalPlayer:WaitForChild("PlayerGui")
+
+if SafeParent:FindFirstChild("UltraPremiumMenu") then
+	SafeParent["UltraPremiumMenu"]:Destroy()
+end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "UltraPremiumMenu"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = SafeParent
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 520, 0, 320)
+MainFrame.Position = UDim2.new(0.5, -260, 0.5, -160)
+MainFrame.BackgroundColor3 = Color3.fromRGB(18, 19, 23)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Parent = ScreenGui
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 14)
+MainCorner.Parent = MainFrame
+
+local Sidebar = Instance.new("Frame")
+Sidebar.Size = UDim2.new(0, 140, 1, 0)
+Sidebar.BackgroundColor3 = Color3.fromRGB(12, 13, 16)
+Sidebar.BorderSizePixel = 0
+Sidebar.Parent = MainFrame
+
+local SideCorner = Instance.new("UICorner")
+SideCorner.CornerRadius = UDim.new(0, 14)
+SideCorner.Parent = Sidebar
+
+local Logo = Instance.new("TextLabel")
+Logo.Size = UDim2.new(1, 0, 0, 50)
+Logo.BackgroundTransparency = 1
+Logo.Text = "⚡ MM HUB"
+Logo.TextColor3 = Color3.fromRGB(0, 255, 170)
+Logo.TextSize = 18
+Logo.Font = Enum.Font.GothamBold
+Logo.Parent = Sidebar
+
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 32, 0, 32)
+CloseBtn.Position = UDim2.new(1, -38, 0, 8)
+CloseBtn.BackgroundTransparency = 1
+CloseBtn.Text = "✕"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 75, 75)
+CloseBtn.TextSize = 20
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.Parent = MainFrame
+
+CloseBtn.MouseButton1Click:Connect(function()
+	ScreenGui:Destroy()
+end)
+
+local MinimizeBtn = Instance.new("TextButton")
+MinimizeBtn.Size = UDim2.new(0, 32, 0, 32)
+MinimizeBtn.Position = UDim2.new(1, -72, 0, 8)
+MinimizeBtn.BackgroundTransparency = 1
+MinimizeBtn.Text = "—"
+MinimizeBtn.TextColor3 = Color3.fromRGB(180, 185, 200)
+MinimizeBtn.TextSize = 18
+MinimizeBtn.Font = Enum.Font.GothamBold
+MinimizeBtn.Parent = MainFrame
+
+local MiniFrame = Instance.new("TextButton")
+MiniFrame.Size = UDim2.new(0, 55, 0, 55)
+MiniFrame.Position = UDim2.new(0.05, 0, 0.1, 0)
+MiniFrame.BackgroundColor3 = Color3.fromRGB(18, 19, 23)
+MiniFrame.Text = "MM"
+MiniFrame.TextColor3 = Color3.fromRGB(0, 255, 170)
+MiniFrame.TextSize = 20
+MiniFrame.Font = Enum.Font.GothamBold
+MiniFrame.Visible = false
+MiniFrame.Active = true
+MiniFrame.Draggable = true
+MiniFrame.Parent = ScreenGui
+
+Instance.new("UICorner", MiniFrame).CornerRadius = UDim.new(0, 12)
+
+MinimizeBtn.MouseButton1Click:Connect(function()
+	MainFrame.Visible = false
+	MiniFrame.Visible = true
+end)
+
+MiniFrame.MouseButton1Click:Connect(function()
+	MainFrame.Visible = true
+	MiniFrame.Visible = false
+end)
+
+local Container = Instance.new("Frame")
+Container.Size = UDim2.new(1, -155, 1, -60)
+Container.Position = UDim2.new(0, 150, 0, 50)
+Container.BackgroundTransparency = 1
+Container.Parent = MainFrame
+
+local Tabs = {
+	Hitboxes = Instance.new("Frame"),
+	ESP = Instance.new("Frame"),
+	Roles = Instance.new("Frame"),
+	Giver = Instance.new("Frame")
+}
+
+for name, f in pairs(Tabs) do
+	f.Size = UDim2.new(1, 0, 1, 0)
+	f.BackgroundTransparency = 1
+	f.Visible = false
+	f.Parent = Container
+end
+Tabs.Hitboxes.Visible = true
+
+local function makeTabBtn(text, offset, tabName)
+	local b = Instance.new("TextButton")
+	b.Size = UDim2.new(0.9, 0, 0, 40)
+	b.Position = UDim2.new(0.05, 0, 0, 55 + offset)
+	b.BackgroundColor3 = Color3.fromRGB(22, 24, 30)
+	b.Text = text
+	b.TextColor3 = Color3.fromRGB(160, 165, 175)
+	b.TextSize = 13
+	b.Font = Enum.Font.GothamSemibold
+	b.Parent = Sidebar
+	Instance.new("UICorner", b).CornerRadius = UDim.new(0, 8)
+	b.MouseButton1Click:Connect(function()
+		for n, f in pairs(Tabs) do f.Visible = (n == tabName) end
+	end)
+end
+
+makeTabBtn("🎯 Хитбоксы", 0, "Hitboxes")
+makeTabBtn("👁️ ESP (ВХ)", 45, "ESP")
+makeTabBtn("🕵️‍♂️ Роли", 90, "Roles")
+makeTabBtn("⚔️ Выдача вещей", 135, "Giver")
+
+local HitboxToggle = Instance.new("TextButton")
+HitboxToggle.Size = UDim2.new(0, 240, 0, 42)
+HitboxToggle.Position = UDim2.new(0, 10, 0, 10)
+HitboxToggle.BackgroundColor3 = Color3.fromRGB(235, 65, 65)
+HitboxToggle.Text = "Хитбоксы: ОТКЛЮЧЕНЫ"
+HitboxToggle.TextColor3 = Color3.new(1,1,1)
+HitboxToggle.Font = Enum.Font.GothamBold
+HitboxToggle.TextSize = 13
+HitboxToggle.Parent = Tabs.Hitboxes
+Instance.new("UICorner", HitboxToggle)
+
+local InfoLabel = Instance.new("TextLabel")
+InfoLabel.Size = UDim2.new(0, 240, 0, 25)
+InfoLabel.Position = UDim2.new(0, 12, 0, 65)
+InfoLabel.BackgroundTransparency = 1
+InfoLabel.Text = "Выбранный размер: " .. HitboxSize
+InfoLabel.TextColor3 = Color3.fromRGB(210, 215, 225)
+InfoLabel.TextSize = 14
+InfoLabel.TextXAlignment = Enum.TextXAlignment.Left
+InfoLabel.Font = Enum.Font.GothamMedium
+InfoLabel.Parent = Tabs.Hitboxes
+
+local PlusBtn = Instance.new("TextButton")
+PlusBtn.Size = UDim2.new(0, 50, 0, 38)
+PlusBtn.Position = UDim2.new(0, 10, 0, 100)
+PlusBtn.BackgroundColor3 = Color3.fromRGB(32, 35, 45)
+PlusBtn.Text = "+"
+PlusBtn.TextColor3 = Color3.fromRGB(0, 255, 170)
+PlusBtn.Font = Enum.Font.GothamBold
+PlusBtn.TextSize = 18
+PlusBtn.Parent = Tabs.Hitboxes
+Instance.new("UICorner", PlusBtn)
+
+local MinusBtn = Instance.new("TextButton")
+MinusBtn.Size = UDim2.new(0, 50, 0, 38)
+MinusBtn.Position = UDim2.new(0, 70, 0, 100)
+MinusBtn.BackgroundColor3 = Color3.fromRGB(32, 35, 45)
+MinusBtn.Text = "—"
+MinusBtn.TextColor3 = Color3.fromRGB(255, 75, 75)
+MinusBtn.Font = Enum.Font.GothamBold
+MinusBtn.TextSize = 18
+MinusBtn.Parent = Tabs.Hitboxes
+Instance.new("UICorner", MinusBtn)
+
+local EspToggle = Instance.new("TextButton")
+EspToggle.Size = UDim2.new(0, 240, 0, 42)
+EspToggle.Position = UDim2.new(0, 10, 0, 10)
+EspToggle.BackgroundColor3 = Color3.fromRGB(235, 65, 65)
+EspToggle.Text = "ESP (ВХ): ОТКЛЮЧЕН"
+EspToggle.TextColor3 = Color3.new(1,1,1)
+EspToggle.Font = Enum.Font.GothamBold
+EspToggle.TextSize = 13
+EspToggle.Parent = Tabs.ESP
+Instance.new("UICorner", EspToggle)
+
+local RolesScroll = Instance.new("ScrollingFrame")
+RolesScroll.Size = UDim2.new(1, -10, 1, -10)
+RolesScroll.Position = UDim2.new(0, 5, 0, 5)
+RolesScroll.BackgroundTransparency = 1
+RolesScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+RolesScroll.ScrollBarThickness = 4
+RolesScroll.Parent = Tabs.Roles
+
+local RolesLayout = Instance.new("UIListLayout")
+RolesLayout.Padding = UDim.new(0, 6)
+RolesLayout.SortOrder = Enum.SortOrder.LayoutOrder
+RolesLayout.Parent = RolesScroll
+
+local DescriptionLabel = Instance.new("TextLabel")
+DescriptionLabel.Size = UDim2.new(1, -20, 0, 30)
+DescriptionLabel.Position = UDim2.new(0, 10, 0, 5)
+DescriptionLabel.BackgroundTransparency = 1
+DescriptionLabel.Text = "Выдача оружия (Работает во время раунда):"
+DescriptionLabel.TextColor3 = Color3.fromRGB(190, 195, 205)
+DescriptionLabel.TextSize = 14
+DescriptionLabel.Font = Enum.Font.GothamMedium
+DescriptionLabel.TextXAlignment = Enum.TextXAlignment.Left
+DescriptionLabel.Parent = Tabs.Giver
+
+local GiveKnifeBtn = Instance.new("TextButton")
+GiveKnifeBtn.Size = UDim2.new(0, 240, 0, 40)
+GiveKnifeBtn.Position = UDim2.new(0, 10, 0, 45)
+GiveKnifeBtn.BackgroundColor3 = Color3.fromRGB(35, 38, 48)
+GiveKnifeBtn.Text = "🔪 Получить Нож"
+GiveKnifeBtn.TextColor3 = Color3.fromRGB(255, 65, 65)
+GiveKnifeBtn.Font = Enum.Font.GothamBold
+GiveKnifeBtn.TextSize = 14
+GiveKnifeBtn.Parent = Tabs.Giver
+Instance.new("UICorner", GiveKnifeBtn)
+
+local GiveGunBtn = Instance.new("TextButton")
+GiveGunBtn.Size = UDim2.new(0, 240, 0, 40)
+GiveGunBtn.Position = UDim2.new(0, 10, 0, 95)
+GiveGunBtn.BackgroundColor3 = Color3.fromRGB(35, 38, 48)
+GiveGunBtn.Text = "🔫 Получить Пистолет"
+GiveGunBtn.TextColor3 = Color3.fromRGB(65, 140, 255)
+GiveGunBtn.Font = Enum.Font.GothamBold
+GiveGunBtn.TextSize = 14
+GiveGunBtn.Parent = Tabs.Giver
+Instance.new("UICorner", GiveGunBtn)
+
+local function getMM2Role(player)
+	if not player then return "Innocent" end
+	local backpack = player:FindFirstChild("Backpack")
+	local char = player.Character
+	if (backpack and backpack:FindFirstChild("Knife")) or (char and char:FindFirstChild("Knife")) then
+		return "Murder"
+	elseif (backpack and backpack:FindFirstChild("Gun")) or (char and char:FindFirstChild("Gun")) then
+		return "Sheriff"
+	end
+	if player:FindFirstChild("PlayerData") and player.PlayerData:FindFirstChild("Role") then
+		return player.PlayerData.Role.Value
+	end
+	return "Innocent"
+end
+
+local function updateRolesList()
+	for _, child in ipairs(RolesScroll:GetChildren()) do
+		if child:IsA("TextLabel") then child:Destroy() end
+	end
+	local count = 0
+	for _, p in ipairs(Players:GetPlayers()) do
+		local role = getMM2Role(p)
+		local roleText = "[Невиновный]"
+		local color = Color3.fromRGB(150, 150, 150)
+		if role == "Murder" then
+			roleText = "[УБИЙЦА]"
+			color = Color3.fromRGB(255, 50, 50)
+		elseif role == "Sheriff" then
+			roleText = "[ШЕРИФ]"
+			color = Color3.fromRGB(50, 150, 255)
+		end
+		local lbl = Instance.new("TextLabel")
+		lbl.Size = UDim2.new(1, -10, 0, 30)
+		lbl.BackgroundTransparency = 0.9
+		lbl.BackgroundColor3 = color
+		lbl.Text = "  " .. p.Name .. " — " .. roleText
+		lbl.TextColor3 = color
+		lbl.TextXAlignment = Enum.TextXAlignment.Left
+		lbl.Font = Enum.Font.GothamSemibold
+		lbl.TextSize = 14
+		lbl.Parent = RolesScroll
+		Instance.new("UICorner", lbl).CornerRadius = UDim.new(0, 4)
+		count = count + 1
+	end
+	RolesScroll.CanvasSize = UDim2.new(0, 0, 0, count * 36)
+end
+
+task.spawn(function()
+	while task.wait(1) do
+		if ScreenGui and ScreenGui.Parent then updateRolesList() else break end
+	end
+end)
+
+local function refreshHitboxes()
+for _, p in ipairs(Players:GetPlayers()) do
+if p ~= LocalPlayer and p.Character then
+local head = p.Character:FindFirstChild("Head")
+if head and head:IsA("BasePart") then
+if HitboxEnabled then
+head.Size = Vector3.new(HitboxSize, HitboxSize, HitboxSize)
+head.Transparency = HitboxTransparency
+head.Color = Color3.fromRGB(0, 255, 170)
+head.Material = Enum.Material.ForceField
+head.CanCollide = false
+else
+head.Size = Vector3.new(2, 1, 1)
+head.Transparency = 0
+head.Material = Enum.Material.Plastic
+head.CanCollide = true
+end
+end
+end
+end
+end
+HitboxToggle.MouseButton1Click:Connect(function()
+HitboxEnabled = not HitboxEnabled
+HitboxToggle.Text = HitboxEnabled and "Хитбоксы: АКТИВИРОВАНЫ" or "Хитбоксы: ОТКЛЮЧЕНЫ"
+HitboxToggle.BackgroundColor3 = HitboxEnabled and Color3.fromRGB(0, 210, 130) or Color3.fromRGB(235, 65, 65)
+refreshHitboxes()
+end)
+PlusBtn.MouseButton1Click:Connect(function()
+HitboxSize = math.min(HitboxSize + 5, 45)
+InfoLabel.Text = "Выбранный размер: " .. HitboxSize
+if HitboxEnabled then refreshHitboxes() end
+end)
+MinusBtn.MouseButton1Click:Connect(function()
+HitboxSize = math.max(HitboxSize - 5, 5)
+InfoLabel.Text = "Выбранный размер: " .. HitboxSize
+if HitboxEnabled then refreshHitboxes() end
+end)
+local function applyEsp(player)
+if player == LocalPlayer then return end
+local char = player.Character
+if char and char:WaitForChild("HumanoidRootPart", 5) then
+if not char:FindFirstChild("ESPHighlight") and EspEnabled then
+local highlight = Instance.new("Highlight")
+highlight.Name = "ESPHighlight"
+highlight.FillColor = Color3.fromRGB(255, 255, 255)
+highlight.OutlineColor = Color3.fromRGB(0, 255, 170)
+highlight.FillTransparency = 0.6
+highlight.Parent = char
+end
+end
+end
+EspToggle.MouseButton1Click:Connect(function()
+EspEnabled = not EspEnabled
+EspToggle.Text = EspEnabled and "ESP (ВХ): АКТИВИРОВАН" or "ESP (ВХ): ОТКЛЮЧЕН"
+EspToggle.BackgroundColor3 = EspEnabled and Color3.fromRGB(0, 210, 130) or Color3.fromRGB(235, 65, 65)
+for _, p in ipairs(Players:GetPlayers()) do
+if not EspEnabled and p.Character and p.Character:FindFirstChild("ESPHighlight") then
+p.Character.ESPHighlight:Destroy()
+elseif EspEnabled then
+applyEsp(p)
+end
+end
+end)
+Players.PlayerAdded:Connect(function(p)
+p.CharacterAdded:Connect(function()
+task.wait(0.5)
+if EspEnabled then applyEsp(p) end
+end)
+end)
+local function localGiveItem(itemName)
+local targetTool = nil
+for _, p in ipairs(Players:GetPlayers()) do
+if p.Character and p.Character:FindFirstChild(itemName) then
+targetTool = p.Character[itemName]
+break
+elseif p:FindFirstChild("Backpack") and p.Backpack:FindFirstChild(itemName) then
+targetTool = p.Backpack[itemName]
+break
+end
+end
+if not targetTool then
+targetTool = ReplicatedStorage:FindFirstChild(itemName) or (ReplicatedStorage:FindFirstChild("Tools") and ReplicatedStorage.Tools:FindFirstChild(itemName))
+end
+if targetTool and LocalPlayer:FindFirstChild("Backpack") then
+local clone = targetTool:Clone()
+clone.Parent = LocalPlayer.Backpack
+end
+end
+GiveKnifeBtn.MouseButton1Click:Connect(function()
+localGiveItem("Knife")
+end)
+GiveGunBtn.MouseButton1Click:Connect(function()
+localGiveItem("Gun")
+end)
+RunService.RenderStepped:Connect(function()
+if HitboxEnabled then refreshHitboxes() end
+end)
